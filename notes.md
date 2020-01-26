@@ -172,16 +172,22 @@ flask run
 ### Directory layout
 without a frontend 
 
-└──  project directory                   
+└──  project directory    
+
     └── flaskr
+    
         └── __init__.py    
 
 with a frontend
 
-└──  project directory                   
+└──  project directory      
+
     ├── frontend
+
     └── backend
+
         └── flaskr
+
             └── __init__.py    
 
 ## Testing the response using Curl
@@ -206,7 +212,7 @@ You can find more options by entering curl --help in the terminal. Some frequent
     - The method used will determine the operation taken
         GOOD:
         https://example.com/posts
-        
+
 - Keep a consistent scheme
     - Plural nouns for collections
     - Use parameters to specify a specific item
