@@ -224,3 +224,126 @@ You can find more options by entering curl --help in the terminal. Some frequent
     - No longer than collection/item/collection
         GOOD:
         https://example.com/entrees/5/reviews
+
+## CORS 
+The same-origin policy is a concept of web security that allows scripts in Webpage 1 to access data from Webpage 2 only if they share the same domain. This means that the above error will be raised in the following cases:
+
+Different domains
+Different subdomains (example.com and api.example.com)
+Different ports (example.com and example.com:1234)
+Different protocols (http://example.com and https://example.com)
+### common CORS headers 
+- Access-Control-Allow-Origin
+What client domains can access its resources. For any domain use *
+- Access-Control-Allow-Credentials
+Only if using cookies for authentication - in which case its value must be true
+- Access-Control-Allow-Methods
+List of HTTP request types allowed
+- Access-Control-Allow-Headers
+List of http request header values the server will allow, particularly useful if you use any custom headers
+
+## Flask-CORS
+Flask-CORS library to enable CORS.
+
+### Installation
+In order to install Flask-CORS simply run
+
+pip3 install -U flask-cors
+
+### Initialization
+Once Flask-CORS is installed, you simply import the CORS function and call it with your app instance as a parameter. This will intialize Flask-CORS will all default options.
+
+from flask_cors import CORS
+
+app = Flask(__name__, instance_relative_config=True)
+CORS(app)
+
+### Resource-Specific Usage
+There are multiple options you can use to specify your Flask-CORS behavior. One typical one is resources, which contains a dictionary whose keys are regular expressions and values are dictionary or kwargs
+
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+### Route-Specific Usage
+If you need to enable CORS on a given route, like those non-simple requests, you can use @cross_origin() to enable it.
+
+@app.route("/hello")
+@cross_origin()
+def get_greeting():
+    return jsonify({'message':'Hello, World!'})
+
+### Flask Route Decorator
+You've already seen the @app.route decorator used in its most basic form like so:
+
+@app.route('/hello')
+def get_greeting():
+    return jsonify({'message':'Hello, World!'})
+In addition, the @app.route decorator can handle Variable Rules and multiple HTTP methods
+
+### Variable Rules
+In our endpoint naming scheme we follow collection/item/collection. In order to handle that variable item. In order to handle that variability in Flask, you add a <variable_name> within the path argument of the `@app.route` decorator, which is then passed to the function as a keyword argument variable_name.
+
+You can also specify the type of the argument by using <converter:variable_name> syntax.
+
+@app.route('/entrees/<int:entree_id>')
+def retrieve_entree(entree_id):
+    return 'Entree %d' % entree_id
+
+### HTTP Methods
+By default, the @app.route decorator answers only get requests. In order to enable more requests types, pass the method parameter to the decorate including a list of string methods.
+
+@app.route('/hello', methods=['GET', 'POST'])
+def greeting():
+    if request.method == 'POST':
+        return create_greeting()
+    else:
+        return send_greeting()
+
+### Pagination in Flask
+When handling large collections of data, attempting to serialize and send all of that data to the frontend will slow down the response and rendering to the client.
+
+A common way to handle this issue is to paginate the data you're sending, and send it in chunks instead. Similar to variables discussed above, flask can handle request arguments to get additional request conditions such as page or search terms.
+
+### Query Parameters
+The below examples show the format of query parameters. When writing query parameters convention dictates that:
+
+A question mark precedes the query parameters
+Parameters are in key=value pairs with an equal sign in between the key and value
+Sets of parameters are separated by an ampersand
+www.example.com/entrees?page=1
+
+www.example.com/entrees?page=1&allergens=peanut
+
+### Request Arguments
+In flask, when a request is received with query params the route in the @app.route decorator remains the same and the request object arguments contains the parameter. You access it as shown below. request.args is a Python dictionary so we use the get method to access the value and provide a default value, in this case 1.
+
+@app.route('/entrees', methods=['GET'])
+  def get_entrees():
+    page = request.args.get('page', 1, type=int)
+
+### Error Handling  / Flask Error Handling 
+When you use the abort method, the default response is not digestible for the client or user.
+
+In addition, we want to ensure all of our server responses have consistent formatting and that we provide adequate information to the client regarding the error. The `@app.errorhandler` decorator allows you to specify the behavior for expected errors. When using this decorator take into consideration:
+
+passing the status code or Python error as an argument to the decorator
+logical naming of the function handler
+
+consistent formatting and messaging of the JSON object response
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 404,
+        "message": "Not found"
+        }), 404
+
+## Test an API
+
+As with all tests, writing unittests for your API verifies the behavior. For APIs, test should be written:
+
+To confirm expected request handling behavior
+To confirm success-response structure is correct
+To confirm expected errors are handled appropriately
+To confirm CRUD operations persist
+
+## Unittest Flask Key Structures

@@ -25,6 +25,7 @@ def create_app(test_config=None):
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
   '''
 
@@ -34,7 +35,10 @@ def create_app(test_config=None):
   '''
   @app.route('/categories')
   def get_categories():
-    categories = Category.query.all()
+    categories = Category.query.order_by(Category.id).all()
+    current_categories = [ category.format() for category in categories ]
+    categories_type = [i["type"] for i in current_categories]
+
     if categories is None:
       abort(404)
     else:
@@ -42,10 +46,12 @@ def create_app(test_config=None):
 
       return jsonify({
         'success':True,
-        'categories': formated_catigories,
-        'total_categories': len(formated_catigories)
+        'categories': categories_type,
+        'total_categories': len(categories)
       })
-    
+
+    current_categories = [ category.format() for category in categories ]
+    categories_type = [i["type"] for i in current_categories]
 
 
   '''
@@ -69,7 +75,6 @@ def create_app(test_config=None):
     categories = Category.query.order_by(Category.id).all()
     current_categories = [ category.format() for category in categories ]
     categories_type = [i["type"] for i in current_categories]
-   
 
     if len(current_questions) == 0 :
       abort(404)
@@ -242,6 +247,27 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes', methods=['POST'])
+  def get_quizzes():
+    body = request.get_json()
+    category = body.get('quiz_category')['id']
+    previous_questions = body.get('previous_questions')
+    
+    if category == 0 :
+      question = Question.query.filter(~Question.id.in_(previous_questions)).first()
+    else:
+      question = Question.query.filter(~Question.id.in_(previous_questions), Question.category == category).first()
+    
+    if question:
+      current_question = question.format()
+      return jsonify({
+        "question" : current_question
+      })
+    else:
+      return jsonify({
+        "question" : None
+      })
+
 
   '''
   @TODO: 
