@@ -37,7 +37,9 @@ def create_app(test_config=None):
   def get_categories():
     categories = Category.query.order_by(Category.id).all()
     current_categories = [ category.format() for category in categories ]
-    categories_type = [i["type"] for i in current_categories]
+    
+    # get types only 
+    categories_type = [cat["type"] for cat in current_categories]
 
     if categories is None:
       abort(404)
@@ -66,9 +68,11 @@ def create_app(test_config=None):
 
   @app.route('/questions')
   def get_questions():
+    # get questions
     questions = Question.query.order_by(Question.id).all()
     current_questions = paginate_questions(request, questions)
 
+    # get categories 
     categories = Category.query.order_by(Category.id).all()
     current_categories = [ category.format() for category in categories ]
     categories_type = [i["type"] for i in current_categories]
@@ -110,6 +114,7 @@ def create_app(test_config=None):
 
       question.delete()
       
+      # get the questions left 
       questions = Question.query.order_by(Question.id).all()
       current_questions = paginate_questions(request, questions)
 
@@ -118,6 +123,7 @@ def create_app(test_config=None):
         'questions': current_questions,
         'total_questions': len(questions)
       })
+
     except:
       abort(404)
 
@@ -143,9 +149,11 @@ def create_app(test_config=None):
     new_difficulty = body.get('difficulty', None)
 
     try:
+      #add the question
       question = Question(question = new_question, answer = new_answer, category = new_category, difficulty=new_difficulty)
       question.insert()
-
+      
+      #get the new questions and return them
       questions = Question.query.order_by(Question.id).all()
       current_questions = paginate_questions(request, questions)
 
@@ -175,9 +183,11 @@ def create_app(test_config=None):
     body = request.get_json()
     search_term =  body.get('searchTerm', None)
     
+    # case insensitive search
     questions = Question.query.filter(Question.question.ilike("%{}%".format(search_term))).all()
     current_questions = paginate_questions(request, questions)
     
+    # get categories and return them
     categories = Category.query.all()
     if categories is None:
       abort(404)
@@ -201,21 +211,24 @@ def create_app(test_config=None):
   '''
   @app.route('/categories/<int:category_id>/questions')
   def get_by_category(category_id):
-    category = Category.query.filter(Category.id == category_id ).all()
+    # get questions
+    category = Category.query.filter(Category.id == category_id ).first()
     questions = Question.query.filter(Question.category == category_id).all()
+    
+    # questions do not exists
     if questions is None:
       abort(404)
     else:
       current_questions = paginate_questions(request, questions)    
      
-
+  
     if len(current_questions) == 0 :
       abort(404)
     
     return jsonify({
       'success':True,
       'questions': current_questions,
-      'current_category':category[0].type,
+      'current_category':category.type,
       'total_questions': len(questions)
     })
     
@@ -234,15 +247,18 @@ def create_app(test_config=None):
   '''
   @app.route('/quizzes', methods=['POST'])
   def get_quizzes():
+    # format request data
     body = request.get_json()
     category = body.get('quiz_category')['id']
     previous_questions = body.get('previous_questions')
     
+    # check if a category is specified   
     if category == 0 :
       question = Question.query.filter(~Question.id.in_(previous_questions)).all()
     else:
       question = Question.query.filter(~Question.id.in_(previous_questions), Question.category == category).all()
     
+    # random question
     if question:
       randomized = random.choice(question) 
       random_question = randomized.format()
