@@ -50,9 +50,6 @@ def create_app(test_config=None):
         'total_categories': len(categories)
       })
 
-    current_categories = [ category.format() for category in categories ]
-    categories_type = [i["type"] for i in current_categories]
-
 
   '''
   @TODO: 
@@ -154,7 +151,7 @@ def create_app(test_config=None):
 
       return jsonify({
         'success': True,
-        'Created': question.id,
+        'question_id': question.id,
         'questions': current_questions,
         'total_questions': len(Question.query.all())
       })
@@ -185,17 +182,19 @@ def create_app(test_config=None):
     search_term =  body.get('searchTerm', None)
     
     questions = Question.query.filter(Question.question.ilike("%{}%".format(search_term))).all()
-    current_questions = [ question.format() for question in questions]
-
+    current_questions = paginate_questions(request, questions)
+    
     categories = Category.query.all()
     if categories is None:
       abort(404)
     formated_catigories = [ category.format() for category in categories ]
+    
 
     return jsonify({
         "questions": current_questions,
         "total_questions": len(Question.query.all()),
-        "current_category": formated_catigories})
+        "current_category": formated_catigories
+    })
   
 
     ''' 
@@ -254,14 +253,17 @@ def create_app(test_config=None):
     previous_questions = body.get('previous_questions')
     
     if category == 0 :
-      question = Question.query.filter(~Question.id.in_(previous_questions)).first()
+      question = Question.query.filter(~Question.id.in_(previous_questions)).all()
     else:
-      question = Question.query.filter(~Question.id.in_(previous_questions), Question.category == category).first()
+      question = Question.query.filter(~Question.id.in_(previous_questions), Question.category == category).all()
     
     if question:
-      current_question = question.format()
+      randomized = random.choice(question) 
+      random_question = randomized.format()
+
+      # current_question = question.format()
       return jsonify({
-        "question" : current_question
+        "question" : random_question
       })
     else:
       return jsonify({
@@ -279,7 +281,7 @@ def create_app(test_config=None):
     return jsonify({
       "success": False,
       "error": 404,
-      "message": "resource not found"
+      "message": "Resource Not Found"
     }), 404
 
   @app.errorhandler(422)
@@ -299,7 +301,7 @@ def create_app(test_config=None):
     }), 400
 
   @app.errorhandler(405)
-  def bad_request(error):
+  def method_not_allowed(error):
     return jsonify({
       "success": False,
       "error": 405,
