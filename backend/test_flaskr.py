@@ -39,7 +39,7 @@ class TriviaTestCase(unittest.TestCase):
 
     """
     TODO
-    Write at least one test for each test for successful operation and for expected errors.
+    Write at least one test for each test for successful operation and for expected errors. [done]
     """
     def test_get_all_categories(self):
         res = self.client().get('/categories')

@@ -13,12 +13,12 @@ def create_app(test_config=None):
   app = Flask(__name__)
   setup_db(app)
 
-  '''
+  ''' [done]
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs [done]
   '''
   CORS(app, resources={ r"*" : {'origins':'*'}})
 
-  '''
+  ''' [done]
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
   @app.after_request
@@ -29,7 +29,7 @@ def create_app(test_config=None):
     return response
   '''
 
-  @TODO: 
+  @TODO: [done]
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
@@ -52,7 +52,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @TODO:  [done]
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
@@ -93,7 +93,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @TODO:  [done]
   Create an endpoint to DELETE question using a question ID. 
   
   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -124,7 +124,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @TODO: [done]
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
   category, and difficulty score.
@@ -159,14 +159,8 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-    ''' curl -X POST -H "Content-Type: application/json" -d  '{ "answer": "what's my name ?", "category": 3, "difficulty": 2, "question": "Sohaib?" }' http://localhost:5000/questions
-    '''
-    
-
-
-
   '''
-  @TODO: 
+  @TODO: [done]
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -197,16 +191,8 @@ def create_app(test_config=None):
     })
   
 
-    ''' 
-    curl -X POST -H "Content-Type: application/json" -d  '{ "searchTerm": "Sohaib?" }' http://localhost:5000/questions/search
-    '''
-
-
-
-
-
   '''
-  @TODO: 
+  @TODO: [done]
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
@@ -236,7 +222,7 @@ def create_app(test_config=None):
     
 
   '''
-  @TODO: 
+  @TODO:  [done]
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
   and return a random questions within the given category, 
@@ -261,7 +247,6 @@ def create_app(test_config=None):
       randomized = random.choice(question) 
       random_question = randomized.format()
 
-      # current_question = question.format()
       return jsonify({
         "question" : random_question
       })
@@ -272,7 +257,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @TODO: [done]
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
